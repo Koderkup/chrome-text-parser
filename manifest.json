@@ -1,31 +1,39 @@
 {
- "manifest_version": "3",
- "name": "Double-click text parser",
- "description": "Sends text from html page",
- "permitions": [
+  "manifest_version": "3",
+  "name": "Double-click text parser",
+  "description": "Sends text from html page",
+  "author": "Koderkup",
+  "version": "1.0",
+  "actions": {
+    "default_popup": "html/popup.html",
+    "default_icon": "icon-32.png"
+  },
+  "icons": {
+    "16": "icon-16.png",
+    "32": "icon-32.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  },
+  "permitions": [
     "actibeTab",
     "scripting",
-    "tabs"
- ],
- "host_permissions": [
-    "<all_urls>"
- ],
- "options_ui": {
+    "tabs",
+    "storage",
+    "notifications",
+    "runtime"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "options_ui": {
     "page": "options.html",
     "open_in_tab": true
- },
- "background": {
-    "service_worker": "background.js"
- },
- "content_scripts":[
+  },
+  "background": {
+    "service_worker": "js/background.js"
+  },
+  "content_scripts": [
     {
-        "matches": [
-            "<all_urls>"
-        ],
-        "js": [
-            "content.js"
-        ]
+      "matches": ["<all_urls>"],
+      "js": ["js/content.js"]
     }
- ]
-       
+  ]
 }
