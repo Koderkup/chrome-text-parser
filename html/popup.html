@@ -7,19 +7,24 @@
   <style>
 
   body {
-    width: 200px;
-    height: 180px;
-    margin: 0;
-    padding: 0;
+    width: 300px;
+    height: 150px;
+    margin: 10;
+    padding: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;  
+    
   }
 
   .container {
+    width: 100%;
+    height: 100%;
     position: relative;
-    border: 1px black solid;
+    border: 1.5px #28344F solid;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -38,7 +43,7 @@
 
   #heading {
   color: white;
-  font-size: 12px;
+  font-size: 20px;
   margin-left: -10px;
   }
 
@@ -66,6 +71,7 @@ justify-content: flex-end;
 
 }
 .switch {
+  margin-right: 10px;
   position: relative;
   display: inline-block;
   width: 50px;
@@ -126,12 +132,11 @@ input:checked + .slider:before {
 <body>
   <div class="container">
     <header>
-    <img id="logo" src="/assets/logo.png" alt="logo">
+    <img id="logo" src="/icons/icon-32.png" alt="logo">
     <span id="heading"><i>Копипастер hh.ru<i></span>
     </header>
     <main>
-    <img id="off" src="/assets/off.png" alt="off">
-    <h6 id="h6"></h6>
+    <h3 id="h3"></h3>
 </main>
   <footer>
   <label class="switch">
@@ -142,22 +147,6 @@ input:checked + .slider:before {
 
    
   </div>
-
-  <script>
-  const lines = ['Двойной клик копипаста отключен',
-  'Двойной клик копипаста включен',
-  'выкл', 'вкл'];
-
-  const h6 = document.querySelector('#h6');
-  h6.textContent = lines[0];
-  const checkbox = document.querySelector('#checkbox');
-  const slider = document.querySelector('.slider');
-  slider.textContent = lines[2];
-  checkbox.addEventListener('change', ()=>{
-  h6.textContent = h6.textContent === lines[0] ? lines[1] : lines[0];
-    slider.textContent = slider.textContent === lines[3] ? lines[2] : lines[3];
-  });
-  </script>
-
+<script src="../js/popup.js"></script>
 </body>
 </html>
