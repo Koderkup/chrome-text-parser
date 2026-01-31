@@ -1,36 +1,28 @@
-
 class AIAssistant {
   constructor() {
     this.apiKey = "";
     this.apiUrl = "https://api.deepseek.com/chat/completions";
-    this.loadApiKey();
   }
 
   async loadApiKey() {
     const data = await chrome.storage.local.get(["apiKey"]);
-    this.apiKey = data.apiKey;
+    this.apiKey = data.apiKey || "";
   }
 
   async saveApiKey(apiKey) {
     await chrome.storage.local.set({ apiKey });
     this.apiKey = apiKey;
   }
- async create() {
-  const inatance = new AIAssistant();
-  const data = await chrome.storage.local.get(["apiKey"]);
-  inatance.apiKey = data.apiKey;
-  return inatance;
- }
 
- 
- async askAI(question, context = "") {
-    if (!this.apiKey)
+  async askAI(question, context = "") {
+    if (!this.apiKey) {
       throw new Error(
         "API ключ не установлен. Укажите его в настройках расширения."
       );
+    }
 
     const fullQuestion = context
-      ? `Котекст: ${context}\n\nВопрос: ${question}`
+      ? `Контекст: ${context}\n\nВопрос: ${question}`
       : question;
 
     try {
@@ -62,35 +54,58 @@ class AIAssistant {
       return data.choices[0].message.content;
     } catch (error) {
       console.error("Error asking AI:", error);
-      return "Error: Unable to get a response from the AI.";
+      throw new Error("Не удалось получить ответ от AI.");
     }
   }
 
-  async analyzePageText(text, userQuestion = "Проанализируй этот текст: ") {
+  async analyzePageText(text, userQuestion = "Проанализируй этот текст") {
+    // Обрезаем текст если слишком длинный
     if (text.length > 15000) {
       text = text.substring(0, 15000) + "...[текст обрезан]";
-
-      const prompt = `${userQuestion} \n\nТекст страницы:\n${text}`;
-      try {
-        const response = await this.askAI(prompt);
-        return response;
-      } catch (error) {
-        console.error("Error analyzing page text:", error);
-        return "Error: Unable to analyze the page text.";
-      }
     }
+
+    const prompt = `${userQuestion}\n\nТекст страницы:\n${text}`;
+    return await this.askAI(prompt);
   }
 }
 
-const aiAssistant = new AIAssistant().create();
+// Создаем экземпляр
+const aiAssistant = new AIAssistant();
 
-//background service
+// Загружаем API ключ при инициализации
+aiAssistant.loadApiKey();
 
-isProcessing = false;
+// Флаг обработки
+let isProcessing = false;
 
-//handler messages from content script
-
+// Обработчик сообщений
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+
+  // Обработка setApiKey
+  if (request.action === "setApiKey") {
+    aiAssistant
+      .saveApiKey(request.apiKey)
+      .then(() => {
+        sendResponse({ success: true });
+      })
+      .catch((error) => {
+        sendResponse({ error: error.message });
+      });
+    return true;
+  }
+
+  // Обработка getStatus
+  if (request.action === "getStatus") {
+    chrome.storage.local.get(["apiKey"], (data) => {
+      sendResponse({
+        hasApiKey: !!data.apiKey,
+        isProcessing,
+      });
+    });
+    return true;
+  }
+
+  // Обработка analyzeText
   if (request.action === "analyzeText") {
     if (isProcessing) {
       sendResponse({ error: "Один запрос уже обрабатывается" });
@@ -98,6 +113,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 
     isProcessing = true;
+
     aiAssistant
       .analyzePageText(
         request.text,
@@ -105,41 +121,43 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       )
       .then((res) => {
         isProcessing = false;
-        chrome.tabs.sendMessage(sender.tab.id, {
-          action: "aiResponse",
-          result: res,
-        });
 
-        sendResponse({ success: true });
+        // Отправляем ответ обратно на вкладку
+        if (sender.tab && sender.tab.id) {
+          chrome.tabs
+            .sendMessage(sender.tab.id, {
+              action: "aiResponse",
+              result: res,
+            })
+            .catch((err) => {
+              console.error("Error sending response to tab:", err);
+            });
+        }
+
+        sendResponse({ success: true, result: res });
       })
       .catch((error) => {
         isProcessing = false;
-        console.error("Error ai response", error);
-
+        console.error("Error analyzing text:", error);
         sendResponse({ error: error.message });
       });
 
-    if (request.action === "setApiKey") {
-      aiAssistant
-        .saveApiKey(request.apiKey)
-        .then(() => {
-          sendResponse({ success: true });
-        })
-        .catch((error) => {
-          sendResponse({ erorr: error.message });
-        });
-
-      return true;
-    }
-
-    if (request.action === "getStatus") {
-      chrome.storage.local.get(["apiKey"], (data) => {
-        sendResponse({
-          hasApiKey: !!data.apiKey,
-          isProcessing,
-        });
-      });
-    }
-    return true;
+    return true; // Важно для асинхронного ответа
   }
+
+  // Для неизвестных действий
+  return false;
+});
+
+// Обработка ошибок
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "error") {
+    console.error("Error from content script:", message.error);
+  }
+  return false;
+});
+
+// Инициализация
+chrome.runtime.onInstalled.addListener(() => {
+  console.log("Extension installed");
 });

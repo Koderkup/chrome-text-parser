@@ -124,6 +124,7 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(26px);
 }
+
 .instructions {
       font-size: 12px;
       color: #666;
@@ -131,7 +132,8 @@ input:checked + .slider:before {
     }
 .btn {
       width: 40%;
-      padding: 10px;
+      height: 30px;
+      padding: 5px;
       background: #28344F;
       color: white;
       border: none;
@@ -168,6 +170,7 @@ input:checked + .slider:before {
     <button id="saveKey" class="btn">Сохранить ключ</button>
     <button id="checkStatus" class="btn"">Проверить статус</button>
   </div>
+  <div id="status" class="status"></div>
     <div class="instructions">
     <p><strong>Как использовать:</strong></p>
     <p>1. Получите API ключ на <a href="https://platform.deepseek.com/api_keys" target="_blank">DeepSeek</a></p>
@@ -176,7 +179,7 @@ input:checked + .slider:before {
     <p>4. Дважды кликните по тексту для анализа</p>
   </div>
 </main>
-  <footer>
+<footer>
   <label class="switch">
   <input type="checkbox" id="checkbox">
   <span class="slider"></span>
