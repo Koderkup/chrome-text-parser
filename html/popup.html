@@ -8,7 +8,7 @@
 
   body {
     width: 300px;
-    height: 150px;
+    height: 450px;
     margin: 10;
     padding: 10;
     display: flex;
@@ -124,7 +124,32 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(26px);
 }
-
+.instructions {
+      font-size: 12px;
+      color: #666;
+      margin-top: 15px;
+    }
+.btn {
+      width: 40%;
+      padding: 10px;
+      background: #28344F;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn:hover {
+      background: #3a4a6d;
+    }
+.api-key-section {
+      margin-bottom: 20px;
+      display: flex;
+      flex-flow: row wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
 
 </style>
 
@@ -137,6 +162,19 @@ input:checked + .slider:before {
     </header>
     <main>
     <h3 id="h3"></h3>
+    <div class="api-key-section">
+    <label for="apiKey">DeepSeek API ключ:</label>
+    <input type="password" id="apiKey" placeholder="Введите ваш API ключ">
+    <button id="saveKey" class="btn">Сохранить ключ</button>
+    <button id="checkStatus" class="btn"">Проверить статус</button>
+  </div>
+    <div class="instructions">
+    <p><strong>Как использовать:</strong></p>
+    <p>1. Получите API ключ на <a href="https://platform.deepseek.com/api_keys" target="_blank">DeepSeek</a></p>
+    <p>2. Вставьте ключ выше и сохраните</p>
+    <p>3. Перейдите на любую страницу</p>
+    <p>4. Дважды кликните по тексту для анализа</p>
+  </div>
 </main>
   <footer>
   <label class="switch">
